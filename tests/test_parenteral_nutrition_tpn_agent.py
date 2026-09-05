@@ -63,3 +63,51 @@ def test_supervisor_consensus_and_audit():
     assert main(["audit", "--task-id", "CLI-TEST-01"]) == 0
     assert main(["chat", "Explain", "specifications"]) == 0
     assert main(["verify-audit"]) == 0
+
+
+# --- New validation tests ---
+
+def test_payload_rejects_empty_task_id():
+    with pytest.raises(ValueError):
+        SystemTaskPayload(task_id="", target_identifier="KEY-01", primary_metric=10.0)
+
+
+def test_payload_rejects_whitespace_only_identifiers():
+    with pytest.raises(ValueError):
+        SystemTaskPayload(task_id="   ", target_identifier="KEY-01", primary_metric=10.0)
+
+
+def test_payload_rejects_nan_metrics():
+    with pytest.raises(ValueError):
+        SystemTaskPayload(task_id="T1", target_identifier="KEY-01", primary_metric=float("nan"))
+
+
+def test_payload_strips_whitespace():
+    p = SystemTaskPayload(task_id="  T1  ", target_identifier="  KEY-01  ", primary_metric=10.0, status_descriptor="  NOMINAL  ")
+    assert p.task_id == "T1"
+    assert p.target_identifier == "KEY-01"
+    assert p.status_descriptor == "NOMINAL"
+
+
+def test_payload_max_length_enforced():
+    with pytest.raises(ValueError):
+        SystemTaskPayload(task_id="T" * 200, target_identifier="KEY-01", primary_metric=10.0)
+
+
+def test_payload_valid_input():
+    p = SystemTaskPayload(task_id="TASK-001", target_identifier="KEY-001", primary_metric=25.5, secondary_metric=10.0)
+    assert p.task_id == "TASK-001"
+    assert p.primary_metric == 25.5
+    assert p.secondary_metric == 10.0
+
+
+def test_batch_missing_file_returns_error():
+    result = main(["batch", "-i", "nonexistent_file_xyz.csv"])
+    assert result == 1
+
+
+def test_phi_redaction():
+    redacted = PHIGuard.redact_phi("Contact patient at 555-123-4567 or MRN-12345678")
+    assert "555-123-4567" not in redacted
+    assert "MRN-12345678" not in redacted
+    assert "[REDACTED_IDENTIFIER]" in redacted

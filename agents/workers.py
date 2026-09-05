@@ -5,7 +5,7 @@ Standard: AASLD / ACG / Chicago Classification v4.0
 """
 import uuid
 from typing import Dict, Any, List, Optional
-from .models import SystemTaskPayload, AgentAlert, UrgencyLevel, SystemIntegrityStatus
+from .models import SystemTaskPayload, AgentAlert, UrgencyLevel
 
 
 class InvariantQCWorker:

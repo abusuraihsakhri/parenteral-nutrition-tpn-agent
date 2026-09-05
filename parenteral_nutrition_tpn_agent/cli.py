@@ -68,6 +68,11 @@ def main(argv=None):
         return 0
 
     if args.command == "batch":
+        import os
+        if not os.path.isfile(args.input):
+            print(f"Error: input file '{args.input}' not found.", file=sys.stderr)
+            return 1
+
         with open(args.input, mode="r", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f)
             fieldnames = list(reader.fieldnames or [])
@@ -75,28 +80,33 @@ def main(argv=None):
 
         out_fields = fieldnames + ["overall_status", "total_alerts", "stat_critical_alerts", "consensus_summary"]
         out_rows = []
-        for r in rows:
-            case = ClinicalCasePayload(
-                case_id=r.get("case_id", "CASE-01"),
-                patient_synthetic_id=r.get("patient_synthetic_id", "SYNTH-01"),
-                primary_metric=float(r.get("metric_primary", r.get("primary_metric", 15.0))),
-                secondary_metric=float(r.get("metric_secondary", r.get("secondary_metric", 5.0))),
-                status_flag=r.get("status_flag", r.get("status_text", "NORMAL")),
-                is_stat=bool(r.get("is_stat", r.get("critical_flag", False))),
-            )
-            dossier = coordinator.process_case(case)
-            row_dict = dict(r)
-            row_dict["overall_status"] = dossier["overall_status"]
-            row_dict["total_alerts"] = dossier["total_alerts"]
-            row_dict["stat_critical_alerts"] = dossier["stat_critical_alerts"]
-            row_dict["consensus_summary"] = dossier["consensus_summary"]
-            out_rows.append(row_dict)
+        errors = 0
+        for idx, r in enumerate(rows, start=1):
+            try:
+                case = ClinicalCasePayload(
+                    case_id=r.get("case_id", "CASE-01"),
+                    patient_synthetic_id=r.get("patient_synthetic_id", "SYNTH-01"),
+                    primary_metric=float(r.get("metric_primary", r.get("primary_metric", 15.0))),
+                    secondary_metric=float(r.get("metric_secondary", r.get("secondary_metric", 5.0))),
+                    status_flag=r.get("status_flag", r.get("status_text", "NORMAL")),
+                    is_stat=str(r.get("is_stat", r.get("critical_flag", ""))).lower() in ("true", "1", "yes"),
+                )
+                dossier = coordinator.process_case(case)
+                row_dict = dict(r)
+                row_dict["overall_status"] = dossier["overall_status"]
+                row_dict["total_alerts"] = dossier["total_alerts"]
+                row_dict["stat_critical_alerts"] = dossier["stat_critical_alerts"]
+                row_dict["consensus_summary"] = dossier["consensus_summary"]
+                out_rows.append(row_dict)
+            except (ValueError, TypeError) as e:
+                errors += 1
+                print(f"Warning: row {idx} skipped: {e}", file=sys.stderr)
 
         with open(args.output, mode="w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=out_fields)
             writer.writeheader()
             writer.writerows(out_rows)
-        print(f"Batch processed {len(out_rows)} records -> {args.output}")
+        print(f"Batch processed {len(out_rows)} records -> {args.output} ({errors} skipped due to errors)")
         return 0
 
     if args.command == "serve":

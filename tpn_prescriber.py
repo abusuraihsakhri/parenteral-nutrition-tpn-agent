@@ -266,6 +266,11 @@ def main(argv=None):
         return 0
 
     if args.command == "batch":
+        import os
+        if not os.path.isfile(args.input):
+            print(f"Error: input file '{args.input}' not found.", file=sys.stderr)
+            return 1
+
         with open(args.input, mode="r", encoding="utf-8-sig") as f:
             reader = csv.DictReader(f)
             fieldnames = list(reader.fieldnames or [])
@@ -273,20 +278,25 @@ def main(argv=None):
 
         out_fields = fieldnames + ["overall_status", "total_alerts", "critical_count", "consensus_summary"]
         out_rows = []
-        for r in rows:
-            dossier = coordinator.audit_case(dict(r))
-            row_dict = dict(r)
-            row_dict["overall_status"] = dossier["overall_status"]
-            row_dict["total_alerts"] = dossier["total_alerts"]
-            row_dict["critical_count"] = dossier["critical_count"]
-            row_dict["consensus_summary"] = dossier["consensus_summary"]
-            out_rows.append(row_dict)
+        errors = 0
+        for idx, r in enumerate(rows, start=1):
+            try:
+                dossier = coordinator.audit_case(dict(r))
+                row_dict = dict(r)
+                row_dict["overall_status"] = dossier["overall_status"]
+                row_dict["total_alerts"] = dossier["total_alerts"]
+                row_dict["critical_count"] = dossier["critical_count"]
+                row_dict["consensus_summary"] = dossier["consensus_summary"]
+                out_rows.append(row_dict)
+            except (ValueError, TypeError) as e:
+                errors += 1
+                print(f"Warning: row {idx} skipped: {e}", file=sys.stderr)
 
         with open(args.output, mode="w", encoding="utf-8", newline="") as f:
             writer = csv.DictWriter(f, fieldnames=out_fields)
             writer.writeheader()
             writer.writerows(out_rows)
-        print(f"Processed {len(out_rows)} records -> {args.output}")
+        print(f"Processed {len(out_rows)} records -> {args.output} ({errors} skipped due to errors)")
         return 0
 
     if args.command == "serve":
