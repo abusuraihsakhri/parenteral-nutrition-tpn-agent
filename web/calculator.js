@@ -30,11 +30,18 @@
     const aminoKcal = amino * 4;
     const lipidKcal = lipid * 2;
     const dextroseKcal = energy - aminoKcal - lipidKcal;
+    if (![aminoKcal, lipidKcal, dextroseKcal].every(Number.isFinite)) {
+      throw new RangeError("Inputs cause arithmetic overflow");
+    }
     if (dextroseKcal < -1e-9) {
       throw new RangeError("Amino-acid and lipid calories exceed the specified energy target");
     }
     const availableDextroseKcal = Math.max(0, dextroseKcal);
     const dextroseG = availableDextroseKcal / 3.4;
+    const gir = dextroseG * 1000 / (weight * 1440);
+    if (!Number.isFinite(gir)) {
+      throw new RangeError("Inputs cause glucose infusion rate overflow");
+    }
     return {
       weight_kg: weight,
       energy_kcal: energy,
@@ -45,7 +52,7 @@
       lipid_kcal: lipidKcal,
       dextrose_g: dextroseG,
       dextrose_kcal: availableDextroseKcal,
-      dextrose_gir_mg_kg_min: dextroseG * 1000 / (weight * 1440),
+      dextrose_gir_mg_kg_min: gir,
       total_calculated_kcal: aminoKcal + lipidKcal + availableDextroseKcal
     };
   }
