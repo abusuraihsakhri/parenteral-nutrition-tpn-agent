@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """
 TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent
-Calculates non-protein calories (dextrose/lipid), amino acid requirements (g/kg), electrolyte osmolarity, and NICE refeeding syndrome prophylaxis.
+Legacy synthetic-threshold demo only; does not calculate a PN prescription or refeeding prophylaxis.
 
 Domain: Clinical Nutrition
 Author: Dr. Abu Suraih Sakhri
@@ -32,15 +32,15 @@ class Severity(str):
 class DomainKnowledgeRegistry:
     """Enterprise domain rules, guideline matrices, and evidence benchmarks."""
     SYSTEM_VERSION = "2.0.0-PRO-CLINICAL"
-    ZERO_PHI_COMPLIANCE = True
-    HIPAA_SAFE_HARBOR = "ACTIVE_ON_PREMISES"
+    ZERO_PHI_COMPLIANCE = False
+    HIPAA_SAFE_HARBOR = "NOT_VALIDATED"
 
     @staticmethod
     def audit_security_and_integrity(payload: Dict[str, Any]) -> List[str]:
         warnings = []
         for key in payload.keys():
             if any(phi_keyword in key.lower() for phi_keyword in ["patient_name", "ssn", "mrn_raw", "dob_raw"]):
-                warnings.append(f"PHI_DEFENSE_TRIGGERED: Direct identifier '{key}' masked to synthetic token.")
+                warnings.append(f"PHI_DEFENSE_TRIGGERED: Direct identifier '{key}' detected; the identifier was NOT masked.")
         return warnings
 
 class AgentAlert:
@@ -77,8 +77,8 @@ class CaloricMacronutrientAgent:
                     agent_name="CaloricMacronutrientAgent",
                     severity=Severity.WARNING,
                     title="Primary Metric Threshold Discrepancy",
-                    details=f"Primary metric value ({val1:.1f}) exceeded standard clinical baseline.",
-                    recommendation="Perform secondary cross-check and review calibration profile.",
+                    details=f"Primary metric value ({val1:.1f}) exceeded an illustrative synthetic threshold; not a clinical limit.",
+                    recommendation="Review synthetic test inputs only; this is not a clinical recommendation.",
                 )
             )
         return alerts
@@ -96,9 +96,9 @@ class RefeedingSyndromeAuditorAgent:
                     alert_id=str(uuid.uuid4())[:8],
                     agent_name="RefeedingSyndromeAuditorAgent",
                     severity=Severity.CRITICAL,
-                    title="Urgent Consensus Protocol Trigger",
+                    title="Synthetic Escalation Flag",
                     details=f"Secondary parameter index ({val2:.1f}) triggered automated supervisory escalation.",
-                    recommendation="Initiate mandatory closed-loop clinical notification protocol.",
+                    recommendation="Synthetic flag only; no clinician notification is performed.",
                 )
             )
         return alerts
@@ -117,7 +117,7 @@ class OsmolarityPeripheralCentralAgent:
                     severity=Severity.ADVISORY,
                     title="Biomarker / Feature Discordance Flag",
                     details=f"Phenotypic discordance noted in observation status ({status_text}).",
-                    recommendation="Reconcile correlative findings with secondary confirmatory testing.",
+                    recommendation="Synthetic text match only; no clinical diagnostic conclusion is made.",
                 )
             )
         return alerts
@@ -163,11 +163,11 @@ class TPNCoordinator:
     def query_assistant(self, user_query: str) -> str:
         q = user_query.strip().lower()
         if "summary" in q or "status" in q:
-            return f"TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent currently tracking {len(self.case_registry)} cases in local air-gapped memory."
+            return f"TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent currently tracking {len(self.case_registry)} synthetic cases in local process memory."
         elif "guidelines" in q or "protocol" in q:
-            return "All sub-agents operate under validated consensus clinical algorithms and CAP/CLSI/NCCN/WHO standards."
+            return "Legacy synthetic thresholds are not validated clinical guidelines or standards."
         else:
-            return f"TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent executive agent online. Continuous supervisory monitoring active across all domain parameters."
+            return f"TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent legacy demonstration active; not a clinical monitoring or prescribing system."
 
 
 coordinator = TPNCoordinator()
@@ -180,7 +180,7 @@ def create_app():
 
         app = FastAPI(
             title="TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent",
-            description="Calculates non-protein calories (dextrose/lipid), amino acid requirements (g/kg), electrolyte osmolarity, and NICE refeeding syndrome prophylaxis.",
+            description="Legacy synthetic-threshold demo only; does not calculate a PN prescription or refeeding prophylaxis.",
             version="1.0.0",
         )
 
