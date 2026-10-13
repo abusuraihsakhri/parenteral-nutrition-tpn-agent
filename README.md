@@ -26,7 +26,9 @@ It reports the resulting amino-acid, lipid, and dextrose energy contributions; l
 | **Illustrative** 20% intravenous lipid emulsion | 2 kcal/mL; 0.2 g lipid/mL |
 | Glucose infusion rate | Dextrose mg ÷ weight kg ÷ 1,440 minutes |
 
-Lipid energy density varies with formulation. Verify the actual manufacturer's labeling. These arithmetic conversions **do not** calculate protein needs, caloric requirements, lipid eligibility, fluid balance, glucose tolerance, electrolyte or micronutrient requirements, PN osmolarity, vascular access suitability, or refeeding prevention.
+Lipid energy density varies with formulation. Verify the actual manufacturer's labeling. Dextrose in the hydrated form is commonly assigned 3.4 kcal/g in North America; other formulations or regional conventions may differ.
+
+Reference basis: [Parenteral Nutrition Overview](https://pmc.ncbi.nlm.nih.gov/articles/PMC9659055/) (dextrose form and energy accounting) and the [U.S. Intralipid 20% prescribing information](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=48c12fbe-c5e8-a1fc-e063-6294a90a15ae) (2,000 kcal/L; 0.2 g/mL lipid). These arithmetic conversions **do not** calculate protein needs, caloric requirements, lipid eligibility, fluid balance, glucose tolerance, electrolyte or micronutrient requirements, PN osmolarity, vascular access suitability, or refeeding prevention.
 
 ## Python installation and CLI
 
