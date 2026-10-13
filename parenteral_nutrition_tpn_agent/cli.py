@@ -7,6 +7,7 @@ import json
 import sys
 from .models import ClinicalCasePayload
 from .agents import TPNCoordinator
+from .calculator import CalculationError, calculate_macronutrients
 
 coordinator = TPNCoordinator()
 
@@ -14,6 +15,13 @@ coordinator = TPNCoordinator()
 def main(argv=None):
     parser = argparse.ArgumentParser(prog="parenteral-nutrition-tpn-agent", description="TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent")
     subparsers = parser.add_subparsers(dest="command", required=True)
+
+    # Non-prescriptive energy-balance calculator
+    p_calc = subparsers.add_parser("calculate", help="Calculate PN energy balance (not a prescription)")
+    p_calc.add_argument("--weight-kg", type=float, required=True)
+    p_calc.add_argument("--energy-kcal", type=float, required=True)
+    p_calc.add_argument("--amino-acids-g", type=float, required=True)
+    p_calc.add_argument("--lipid-20pct-ml", type=float, required=True)
 
     # Audit
     p_audit = subparsers.add_parser("audit", help="Run single case clinical audit")
@@ -38,6 +46,18 @@ def main(argv=None):
     p_serve.add_argument("--port", type=int, default=8000)
 
     args = parser.parse_args(argv)
+
+    if args.command == "calculate":
+        try:
+            result = calculate_macronutrients(
+                args.weight_kg, args.energy_kcal,
+                args.amino_acids_g, args.lipid_20pct_ml
+            )
+        except CalculationError as exc:
+            print(f"Error: {exc}", file=sys.stderr)
+            return 1
+        print(json.dumps({"scope": "NON_PRESCRIPTIVE_ARITHMETIC", **result}, indent=2))
+        return 0
 
     if args.command == "audit":
         case = ClinicalCasePayload(
