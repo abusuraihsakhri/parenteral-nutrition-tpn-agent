@@ -16,7 +16,7 @@ supervisor = SystemSupervisor(model_provider="mock")
 app = FastAPI(
     title="Parenteral Nutrition Tpn Agent API",
     description="Demonstration audit API plus non-prescriptive parenteral nutrition energy arithmetic; not a clinical prescribing system.",
-    version="3.0.0-ENTERPRISE",
+    version="2.1.0",
 )
 
 
@@ -33,7 +33,7 @@ class MacronutrientRequest(BaseModel):
 
 @app.get("/health")
 def health():
-    return {"status": "HEALTHY", "service": "parenteral-nutrition-tpn-agent", "domain": "Non-prescriptive nutrition arithmetic / legacy demonstrations", "validation": "NOT_CLINICALLY_VALIDATED", "version": "3.0.0-ENTERPRISE"}
+    return {"status": "HEALTHY", "service": "parenteral-nutrition-tpn-agent", "domain": "Non-prescriptive nutrition arithmetic / legacy demonstrations", "validation": "NOT_CLINICALLY_VALIDATED", "version": "2.1.0"}
 
 
 @app.get("/metrics")
