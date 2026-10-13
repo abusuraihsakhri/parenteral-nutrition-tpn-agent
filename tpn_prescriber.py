@@ -31,7 +31,7 @@ class Severity(str):
 
 class DomainKnowledgeRegistry:
     """Enterprise domain rules, guideline matrices, and evidence benchmarks."""
-    SYSTEM_VERSION = "2.0.0-PRO-CLINICAL"
+    SYSTEM_VERSION = "2.1.0-LEGACY"
     ZERO_PHI_COMPLIANCE = False
     HIPAA_SAFE_HARBOR = "NOT_VALIDATED"
 
