@@ -1,9 +1,10 @@
 """
 Pydantic v2 schemas and data definitions for Parenteral Nutrition Tpn Agent.
-Domain: Gastroenterology & Hepatology Systems
-Standard: AASLD / ACG / Chicago Classification v4.0
+Domain: Generic arithmetic and synthetic threshold demonstrations
+Standard: Synthetic threshold demonstration; not clinical guidance
 """
 import datetime
+import math
 from enum import Enum
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, field_validator
@@ -42,7 +43,7 @@ class SystemTaskPayload(BaseModel):
     @field_validator("primary_metric", "secondary_metric")
     @classmethod
     def _validate_metrics_finite(cls, v: float) -> float:
-        if not isinstance(v, (int, float)) or v != v:  # NaN check
+        if not isinstance(v, (int, float)) or not math.isfinite(v):
             raise ValueError("metric values must be finite numbers")
         return float(v)
 
@@ -54,7 +55,7 @@ class AgentAlert(BaseModel):
     summary: str
     technical_details: str
     actionable_remediation: str
-    standard_reference: str = "AASLD / ACG / Chicago Classification v4.0"
+    standard_reference: str = "Synthetic threshold demonstration; not clinical guidance"
     timestamp: str = Field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())
 
     def to_dict(self) -> Dict[str, Any]:
@@ -64,7 +65,7 @@ class AgentAlert(BaseModel):
 class ConsensusDossier(BaseModel):
     dossier_id: str
     system_slug: str = "parenteral-nutrition-tpn-agent"
-    domain: str = "Gastroenterology & Hepatology Systems"
+    domain: str = "Generic arithmetic and synthetic threshold demonstrations"
     task_id: str
     target_identifier: str
     overall_urgency: UrgencyLevel
@@ -72,7 +73,7 @@ class ConsensusDossier(BaseModel):
     total_alerts: int
     critical_alerts_count: int
     alerts: List[AgentAlert]
-    standard_reference: str = "AASLD / ACG / Chicago Classification v4.0"
+    standard_reference: str = "Synthetic threshold demonstration; not clinical guidance"
     consensus_summary: str
     audit_hash: str
     timestamp: str = Field(default_factory=lambda: datetime.datetime.now(datetime.timezone.utc).isoformat())

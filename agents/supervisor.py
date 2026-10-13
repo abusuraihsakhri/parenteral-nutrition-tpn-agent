@@ -75,5 +75,5 @@ class SystemSupervisor:
 
     def query_supervisory_chat(self, query: str) -> str:
         PHIGuard.assert_no_phi(query)
-        prompt = f"Supervisor inquiry for Parenteral Nutrition Tpn Agent under AASLD / ACG / Chicago Classification v4.0: {query}"
+        prompt = f"Demonstration-mode inquiry for Parenteral Nutrition TPN Agent: {query}"
         return self.llm.invoke(prompt)

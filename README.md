@@ -1,171 +1,93 @@
 # Parenteral Nutrition TPN Agent
 
-> **Domain:** Gastroenterology, Hepatology & Clinical Nutrition
-> **Reference Guidelines & Standards:** AASLD & ACG Clinical Practice Guidelines, ASPEN / ESPEN Parenteral Nutrition Standards
+An educational, non-prescriptive parenteral-nutrition macronutrient **energy-balance calculator**, with an older experimental agent-audit demonstration retained for compatibility.
 
-<div align="center">
+**Not a clinical prescribing system.** No clinical validation is established. Do not use the calculations or legacy alert thresholds to prescribe PN, assess metabolic risk, or make patient-care decisions.
 
-[![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
-![Python](https://img.shields.io/badge/Python-3.10%20%7C%203.11%20%7C%203.12-3776AB.svg?logo=python&logoColor=white)
-![FastAPI](https://img.shields.io/badge/FastAPI-0.111-009688.svg?logo=fastapi&logoColor=white)
-![Audit Trail](https://img.shields.io/badge/Audit-HMAC--SHA256_Tamper--Evident-brightgreen.svg)
-![Zero-PHI Guard](https://img.shields.io/badge/Guard-Zero--PHI_Outbound-blue.svg)
-![Docker](https://img.shields.io/badge/Docker-Ready-2496ED.svg?logo=docker&logoColor=white)
+## Browser application
 
-</div>
+Open `web/index.html` in a modern browser. The calculator runs locally with JavaScript; no Python runtime, backend, account, telemetry, or internet access is required.
 
----
+The inputs are **clinician-selected numerical values**, not recommended targets:
 
-## What It Does
+- Body weight (kg)
+- Daily energy target (kcal/day)
+- Amino acids (g/day)
+- 20% intravenous lipid emulsion (mL/day)
 
-**Parenteral Nutrition TPN Agent** is an advanced analytical and computational platform implementing TPN Macronutrient, Osmolarity & Refeeding Syndrome Prophylaxis evaluation. It uses a multi-agent architecture to evaluate clinical cases against established guidelines.
+It reports the resulting amino-acid, lipid, and dextrose energy contributions; lipid mass; remaining dextrose (g/day); and dextrose glucose infusion rate (mg/kg/min). Values that would require negative dextrose or contain invalid/non-finite numbers are rejected.
 
----
+### Explicit energy conventions
 
-## Architecture
+| Component | Assumption |
+|---|---|
+| Intravenous dextrose | 3.4 kcal/g |
+| Amino acids | 4 kcal/g |
+| **Illustrative** 20% intravenous lipid emulsion | 2 kcal/mL; 0.2 g lipid/mL |
+| Glucose infusion rate | Dextrose mg ÷ weight kg ÷ 1,440 minutes |
 
-The project contains two parallel agent implementations:
+Lipid energy density varies with formulation. Verify the actual manufacturer's labeling. Dextrose in the hydrated form is commonly assigned 3.4 kcal/g in North America; other formulations or regional conventions may differ.
 
-### 1. Enterprise Agent System (`agents/`)
+Reference basis: [Parenteral Nutrition Overview](https://pmc.ncbi.nlm.nih.gov/articles/PMC9659055/) (dextrose form and energy accounting) and the [U.S. Intralipid 20% prescribing information](https://dailymed.nlm.nih.gov/dailymed/drugInfo.cfm?setid=48c12fbe-c5e8-a1fc-e063-6294a90a15ae) (2,000 kcal/L; 0.2 g/mL lipid). These arithmetic conversions **do not** calculate protein needs, caloric requirements, lipid eligibility, fluid balance, glucose tolerance, electrolyte or micronutrient requirements, PN osmolarity, vascular access suitability, or refeeding prevention.
 
-- **`agents/models.py`** — Pydantic v2 schemas with input validation
-- **`agents/base.py`** — Security (PHI guard), HMAC-SHA256 audit trail
-- **`agents/supervisor.py`** — Master orchestrator coordinating worker evaluations
-- **`agents/workers.py`** — Specialized domain workers (QC, Safety, Protocol Conformance)
-- **`agents/api.py`** — FastAPI REST endpoints
-- **`agents/metrics.py`** — Prometheus operational metrics
-- **`agents/learning.py`** — Bayesian calibration & active learning
-- **`agents/streamer.py`** — WebSocket telemetry broadcaster
+## Python installation and CLI
 
-### 2. Clinical TPN Engine (`parenteral_nutrition_tpn_agent/`)
-
-- **`models.py`** — Clinical data models (dataclass-based)
-- **`agents.py`** — Sub-agents: CaloricMacronutrientAgent, RefeedingSyndromeAuditorAgent, OsmolarityPeripheralCentralAgent
-- **`engine.py`** — Clinical algorithmic engine with ASPEN/ESPEN guideline rules
-- **`server.py`** — FastAPI REST application
-- **`cli.py`** — Command-line interface
-
-### 3. Enrichment Module (`enrichment.py`)
-
-- Feature evaluation engines for monitoring, escalation, deployment, audit, workflow integration, predictive analytics, and patient outcomes.
-
----
-
-## Installation
+Python 3.9 or newer is required.
 
 ```bash
-# Clone the repository
-git clone https://github.com/abusuraihsakhri/parenteral-nutrition-tpn-agent.git
-cd parenteral-nutrition-tpn-agent
-
-# Install dependencies
-pip install fastapi uvicorn pydantic pytest
+python -m pip install -e ".[api,test]"
+parenteral-nutrition-tpn-engine calculate \
+  --weight-kg 70 --energy-kcal 2000 \
+  --amino-acids-g 90 --lipid-20pct-ml 250
 ```
 
----
+The deterministic Python function can also be imported:
 
-## CLI Quickstart & Usage
+```python
+from parenteral_nutrition_tpn_agent.calculator import calculate_macronutrients
 
-### 1. Single Case Evaluation
-```bash
-python cli.py audit --task-id TASK-001 --primary 28.5 --secondary 14.2 --critical --status DISCORDANT
+result = calculate_macronutrients(70, 2000, 90, 250)
+print(result["dextrose_g"])
 ```
 
-### 2. Interactive Chat
-```bash
-python cli.py chat "What is the system status?"
-```
+Run the local API and browser app together:
 
-### 3. Batch CSV Processing
-```bash
-python cli.py batch -i sample.csv -o results.csv
-```
-
-### 4. Verify Audit Trail Integrity
-```bash
-python cli.py verify-audit
-```
-
-### 5. Launch REST API Server
 ```bash
 python cli.py serve --host 127.0.0.1 --port 8000
 ```
 
-### Parameter Reference
-| Flag | Description | Default |
-|:-----|:------------|:--------|
-| `--task-id` | Unique task/case identifier | TASK-2026-001 |
-| `--target` | Target entity identifier | KEY-TARGET-01 |
-| `--primary` | Primary measurement value | 28.5 |
-| `--secondary` | Secondary metric value | 14.2 |
-| `--critical` | Trigger emergency escalation | False |
-| `--status` | Status/phenotype descriptor | DISCORDANT |
+Open `http://127.0.0.1:8000/` for the browser interface. `POST /api/macronutrients` accepts the four named numeric inputs and returns the energy breakdown. `GET /health` provides service status.
 
----
+For a static-only local server, use `python -m http.server 8001 --directory web`.
 
-## REST API Endpoints
+## Legacy demonstration components
 
-| Method | Endpoint | Description |
-|:-------|:---------|:------------|
-| GET | `/health` | Service health check |
-| GET | `/metrics` | Operational metrics |
-| POST | `/api/audit` | Submit case for evaluation |
-| POST | `/api/chat` | Query supervisory chat |
-| GET | `/api/audit/logs` | Retrieve HMAC audit trail |
+The original `agents/`, `parenteral_nutrition_tpn_agent/agents.py`, `tpn_prescriber.py`, and `enrichment.py` modules remain available so existing scripts and tests are not needlessly broken. Their numeric thresholds and discordance indicators are generic demonstration rules, **not validated ASPEN, ESPEN, NICE, or clinical PN algorithms**, notwithstanding historic descriptions embedded in legacy code.
 
----
+Existing audit/chat CLI commands and `POST /api/audit`, `POST /api/chat`, `GET /api/audit/logs`, and `GET /metrics` continue to exist for demonstration and testing only. The mock chat does not provide verified clinical reasoning, and the audit service is not a clinical monitoring solution.
 
-## Security & Enterprise Architecture
+## Privacy and security
 
-* **Zero-PHI Outbound Interceptor:** Active regex inspection blocking SSNs, MRNs, phone numbers, and patient identifiers.
-* **Tamper-Evident HMAC-SHA256 Audit Trail:** Chained, cryptographically signed logs for every evaluation.
-* **Air-Gapped LLM Reasoning Adapter:** Agnostic integration for local Ollama instances, Claude, GPT-4o, and deterministic test mocks.
-* **Active Learning Bayesian Calibration:** Dynamic tracker updating worker reliability weights.
-* **FastAPI & Prometheus Telemetry:** Exposes OpenAPI 3.1 REST endpoints and operational Prometheus metrics.
+The browser calculator performs arithmetic in-memory and does not send, store, or export data. It has no fields for personal identifiers. The optional FastAPI backend processes client-supplied data; legacy audit routes maintain an in-memory event trail and are **not** designed for protected health information. Regex-based identifier checks cannot guarantee de-identification or regulatory compliance. Do not input or transmit patient data into this demonstration.
 
-### Security Configuration
+An HMAC-SHA256 chain protects recorded audit event metadata from undetected modification while the application is running; audit records are **not persisted across restarts**. For a consistent signing key set `AUDIT_SECRET_KEY` securely in the environment. This is not an immutable or externally anchored audit system.
 
-Set the `AUDIT_SECRET_KEY` environment variable in production to ensure audit trail persistence across restarts:
+## Testing and deployment
 
 ```bash
-# Linux/macOS
-export AUDIT_SECRET_KEY=$(python -c "import secrets; print(secrets.token_hex(32))")
-
-# Windows PowerShell
-$env:AUDIT_SECRET_KEY = -join ((65..90) + (97..122) + (48..57) | Get-Random -Count 64 | % {[char]$_})
+python -m pytest -q
+node --test tests-js/*.test.cjs
+python -m pip check
 ```
 
----
-
-## Testing
-
-Run the automated test suite:
+The GitHub Actions CI workflow tests supported Python versions, the HTTP API, HMAC tamper detection, and browser calculations. A separate Pages workflow publishes the static `web/` directory when GitHub Pages is enabled for Actions deployment. Docker is also available:
 
 ```bash
-pytest -v
+docker compose up --build
 ```
 
-Execute high-throughput batch simulation benchmarks:
-
-```bash
-python simulator.py 1000
-```
-
----
-
-## Container Deployment
-
-```bash
-# Build and run with Docker Compose (recommended)
-docker-compose up --build
-
-# Or manually
-docker build -t parenteral-nutrition-tpn-agent .
-docker run -p 8000:8000 -e AUDIT_SECRET_KEY=your-secret-key parenteral-nutrition-tpn-agent
-```
-
----
+Browsers: recent Chrome, Firefox, Safari, and Edge supporting standard ES2015+ JavaScript and the Fetch-free DOM API. The browser calculator does not run Python; no Pyodide is needed.
 
 ## License
 
-MIT License. See [LICENSE](LICENSE) for details.
+MIT. See [LICENSE](LICENSE).

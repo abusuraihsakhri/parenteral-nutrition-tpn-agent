@@ -14,8 +14,8 @@ def create_app():
 
         app = FastAPI(
             title="TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent",
-            description="Calculates non-protein calories (dextrose/lipid), amino acid requirements (g/kg), electrolyte osmolarity, and NICE refeeding syndrome prophylaxis.",
-            version="2.0.0-PRO",
+            description="Legacy synthetic-threshold demonstration. Does not prescribe PN or assess refeeding risk.",
+            version="2.1.0-LEGACY",
         )
 
         class AuditRequest(BaseModel):
@@ -33,7 +33,7 @@ def create_app():
 
         @app.get("/health")
         def health():
-            return {"status": "HEALTHY", "system": "parenteral-nutrition-tpn-agent", "domain": "Clinical Nutrition", "version": "2.0.0-PRO"}
+            return {"status": "HEALTHY", "system": "parenteral-nutrition-tpn-agent", "domain": "Clinical Nutrition", "version": "2.1.0-LEGACY"}
 
         @app.post("/api/audit")
         def api_audit(req: AuditRequest):

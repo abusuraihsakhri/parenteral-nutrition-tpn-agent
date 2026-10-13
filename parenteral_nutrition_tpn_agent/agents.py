@@ -93,7 +93,7 @@ class TPNCoordinator:
             "stat_critical_alerts": stat_count,
             "warning_alerts": warn_count,
             "alerts": [a.to_dict() for a in all_alerts],
-            "guideline_standard": "ASPEN / ESPEN Parenteral Nutrition Standards",
+            "guideline_standard": "Synthetic demonstration thresholds; not clinical guidance",
             "consensus_summary": f"Multi-agent supervision completed across 3 sub-agents with status [{status.value}].",
         }
 
@@ -105,6 +105,6 @@ class TPNCoordinator:
         if "status" in q or "summary" in q:
             return f"TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent currently tracking {len(self.case_registry)} cases in on-premises memory."
         elif "guideline" in q or "standard" in q:
-            return "Active clinical surveillance operates under ASPEN / ESPEN Parenteral Nutrition Standards validated protocols."
+            return "Legacy synthetic rules only: this is not a validated clinical surveillance or prescribing system."
         else:
-            return f"TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent executive agent online. Zero-PHI air-gapped monitoring active."
+            return f"TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent legacy demonstration active; no protected health information should be entered."

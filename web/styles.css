@@ -1,0 +1,65 @@
+:root {
+  color-scheme: light;
+  --ink: #17283b;
+  --muted: #506277;
+  --border: #dbe3eb;
+  --teal: #0b776d;
+  --bg: #f4f7fa;
+  --surface: #ffffff;
+}
+* { box-sizing: border-box; }
+body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 system-ui, -apple-system, "Segoe UI", sans-serif; }
+.shell { max-width: 1160px; margin: 0 auto; padding: 38px 24px 48px; }
+.intro { max-width: 950px; margin: 0 0 30px; }
+.eyebrow { margin: 0 0 6px; color: var(--teal); letter-spacing: .13em; font-size: .76rem; font-weight: 800; text-transform: uppercase; }
+h1 { margin: 0; max-width: 760px; font-size: clamp(1.85rem, 4vw, 2.65rem); letter-spacing: -.035em; line-height: 1.19; }
+.lede { max-width: 800px; font-size: 1.02rem; color: var(--muted); }
+.notice { margin-top: 20px; border: 1px solid #dfc88e; border-left: 4px solid #ae7912; background: #fffaf0; border-radius: 8px; padding: 14px 18px; font-size: .88rem; }
+.notice strong { display: block; margin-bottom: 3px; }
+.layout { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; align-items: start; }
+.panel { padding: 26px; border: 1px solid var(--border); border-radius: 14px; background: var(--surface); box-shadow: 0 6px 24px rgba(20,38,54,.04); }
+.section-head { display: flex; align-items: flex-start; gap: 13px; margin-bottom: 22px; }
+.step { display: grid; place-items: center; flex: none; background: #e3f4f0; color: var(--teal); width: 38px; height: 38px; border-radius: 10px; font-weight: 800; }
+h2 { margin: 0; font-size: 1.23rem; }
+.section-head p { margin: 2px 0 0; color: var(--muted); font-size: .85rem; }
+.fields { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); column-gap: 16px; row-gap: 18px; }
+label { display: block; color: var(--ink); margin-bottom: 7px; font-weight: 700; font-size: .87rem; }
+label span { color: var(--muted); font-weight: 500; }
+input { width: 100%; height: 44px; border: 1px solid #bbcbd7; border-radius: 7px; padding: 8px 12px; font: inherit; color: var(--ink); background: white; }
+input:focus-visible, button:focus-visible, a:focus-visible { outline: 3px solid #68c9be; outline-offset: 2px; }
+small { display: block; margin-top: 5px; font-size: .75rem; line-height: 1.45; color: var(--muted); }
+.actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 23px; }
+button { font: inherit; font-weight: 700; padding: 11px 17px; border-radius: 7px; cursor: pointer; }
+.primary { background: var(--teal); border: 1px solid var(--teal); color: white; }
+.primary:hover { background: #075e56; }
+.secondary { background: white; border: 1px solid #b9c8d6; color: var(--ink); }
+.secondary:hover { background: #eef3f7; }
+.error { background: #fff1ef; border: 1px solid #e8a8a0; color: #8a2118; border-radius: 6px; padding: 10px 12px; font-size: .85rem; }
+.result-hero { background: #eaf7f4; border-radius: 10px; padding: 15px 19px; margin: 0 0 17px; }
+.result-hero .metric-label { margin: 0; color: #36675e; font-size: .79rem; }
+.result-hero .metric-value { font-size: clamp(1.5rem, 3vw, 2.05rem); font-weight: 800; line-height: 1.35; }
+.result-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.result-item { padding: 13px 15px; border: 1px solid var(--border); border-radius: 8px; min-width: 0; }
+.result-item .metric-label { margin: 0; color: var(--muted); font-size: .77rem; }
+.result-item .metric-value { font-size: 1.2rem; font-weight: 800; overflow-wrap: anywhere; }
+.metric-value span { font-size: .8rem; font-weight: 500; color: var(--muted); }
+.placeholder { margin: 4px 0 28px; color: var(--muted); }
+.formula { border-top: 1px solid var(--border); margin-top: 20px; padding-top: 14px; }
+h3 { margin: 0 0 8px; font-size: .92rem; }
+dl { margin: 0; }
+dl div { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; font-size: .82rem; }
+dt { color: var(--muted); }
+dd { margin: 0; text-align: right; font-weight: 700; }
+footer { max-width: 950px; margin-top: 30px; color: var(--muted); font-size: .8rem; }
+footer p { margin: 8px 0; }
+a { color: #00665d; }
+@media (max-width: 780px) {
+  .layout { grid-template-columns: 1fr; }
+}
+@media (max-width: 460px) {
+  .shell { padding: 24px 13px 34px; }
+  .panel { padding: 18px; }
+  .fields { grid-template-columns: 1fr; }
+  .result-grid { grid-template-columns: 1fr 1fr; }
+  .actions button { flex: 1; }
+}

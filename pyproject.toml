@@ -4,24 +4,30 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "parenteral-nutrition-tpn-engine"
-version = "2.0.0"
-description = "TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Engine"
+version = "2.1.0"
+description = "Non-prescriptive parenteral macronutrient energy calculator and legacy demonstration agents"
 readme = "README.md"
-authors = [{ name = "Dr. Abu Suraih Sakhri", email = "abusuraih@example.com" }]
+authors = [{ name = "Dr. Abu Suraih Sakhri" }]
 license = { text = "MIT" }
 classifiers = [
     "Programming Language :: Python :: 3",
     "License :: OSI Approved :: MIT License",
     "Operating System :: OS Independent",
-    "Topic :: Scientific/Engineering :: Medical Science Apps.",
-    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Scientific/Engineering :: Medical Science Apps",
 ]
 requires-python = ">=3.9"
-dependencies = []
+dependencies = ["pydantic>=2.0,<3"]
+
+[project.optional-dependencies]
+api = ["fastapi>=0.111,<1", "uvicorn>=0.30,<1"]
+test = ["pytest>=8,<10", "httpx>=0.27,<1"]
 
 [project.scripts]
 parenteral-nutrition-tpn-engine = "parenteral_nutrition_tpn_agent.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/abusuraihsakhri/parenteral-nutrition-tpn-engine"
-Repository = "https://github.com/abusuraihsakhri/parenteral-nutrition-tpn-engine.git"
+Homepage = "https://github.com/abusuraihsakhri/parenteral-nutrition-tpn-agent"
+Repository = "https://github.com/abusuraihsakhri/parenteral-nutrition-tpn-agent"
+
+[tool.setuptools.packages.find]
+include = ["agents*", "parenteral_nutrition_tpn_agent*"]
