@@ -4,6 +4,7 @@ Domain: Gastroenterology & Hepatology Systems
 Standard: AASLD / ACG / Chicago Classification v4.0
 """
 import datetime
+import math
 from enum import Enum
 from typing import Dict, Any, List, Optional
 from pydantic import BaseModel, Field, field_validator
@@ -42,7 +43,7 @@ class SystemTaskPayload(BaseModel):
     @field_validator("primary_metric", "secondary_metric")
     @classmethod
     def _validate_metrics_finite(cls, v: float) -> float:
-        if not isinstance(v, (int, float)) or v != v:  # NaN check
+        if not isinstance(v, (int, float)) or not math.isfinite(v):
             raise ValueError("metric values must be finite numbers")
         return float(v)
 
