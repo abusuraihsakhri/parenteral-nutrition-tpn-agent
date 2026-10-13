@@ -47,6 +47,8 @@ def calculate_macronutrients(
     amino_kcal = amino * 4.0
     lipid_kcal = lipid * 2.0
     dextrose_kcal = energy - amino_kcal - lipid_kcal
+    if not all(math.isfinite(v) for v in (amino_kcal, lipid_kcal, dextrose_kcal)):
+        raise CalculationError("Inputs cause arithmetic overflow")
     if dextrose_kcal < -1e-9:
         raise CalculationError(
             "Amino-acid and lipid calories exceed the specified energy target"
@@ -54,6 +56,9 @@ def calculate_macronutrients(
 
     dextrose_kcal = max(0.0, dextrose_kcal)
     dextrose_g = dextrose_kcal / 3.4
+    gir = dextrose_g * 1000.0 / (weight * 1440.0)
+    if not math.isfinite(gir):
+        raise CalculationError("Inputs cause glucose infusion rate overflow")
     return {
         "weight_kg": weight,
         "energy_kcal": energy,
@@ -64,6 +69,6 @@ def calculate_macronutrients(
         "lipid_kcal": lipid_kcal,
         "dextrose_g": dextrose_g,
         "dextrose_kcal": dextrose_kcal,
-        "dextrose_gir_mg_kg_min": dextrose_g * 1000.0 / (weight * 1440.0),
+        "dextrose_gir_mg_kg_min": gir,
         "total_calculated_kcal": amino_kcal + lipid_kcal + dextrose_kcal,
     }
