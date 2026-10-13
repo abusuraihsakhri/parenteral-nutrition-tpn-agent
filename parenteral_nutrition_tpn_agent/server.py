@@ -14,7 +14,7 @@ def create_app():
 
         app = FastAPI(
             title="TPN-Prescriber: Total Parenteral Nutrition (TPN) Macro/Micro & Refeeding Agent",
-            description="Calculates non-protein calories (dextrose/lipid), amino acid requirements (g/kg), electrolyte osmolarity, and NICE refeeding syndrome prophylaxis.",
+            description="Legacy synthetic-threshold demonstration. Does not prescribe PN or assess refeeding risk.",
             version="2.0.0-PRO",
         )
 
